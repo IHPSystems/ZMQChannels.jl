@@ -1,0 +1,13 @@
+name = "ZMQChannels"
+uuid = "1e5c66d6-50a3-11e9-3d20-f36314a8d691"
+authors = ["IHP Systems R&D <research@ihp.dk>"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
