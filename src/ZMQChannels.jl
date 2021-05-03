@@ -1,31 +1,15 @@
 module ZMQChannels
 
 using ZMQ
+
 import Base: put!, take!, isready, fetch, isopen, close, bind, finalize, iterate
+
 export put!, take!, isready, fetch, isopen, close, bind, iterate
-
-function put!(socket::Socket, value)
-    send(socket, value)
-end
-
-function take!(socket::Socket)
-    return recv(socket)
-end
-
-function isready(socket::Socket)
-    return true
-end
-
 
 export ZMQPullChannel, ZMQPushChannel
 
-mutable struct ZMQChannel
+mutable struct ZMQChannel <: AbstractChannel{Vector{UInt8}}
     socket::Socket
-    function ZMQChannel(socket::Socket)
-        this = new()
-        this.socket = socket
-        return this
-    end
 end
 
 function ZMQPullChannel(context::Context, url::String)
@@ -33,6 +17,7 @@ function ZMQPullChannel(context::Context, url::String)
     bind(channel.socket, url)
     return channel
 end
+
 function ZMQPullChannel(url::String)
     return ZMQPullChannel(ZMQ.context(), url)
 end
@@ -47,13 +32,11 @@ function ZMQPushChannel(url::String)
     return ZMQPushChannel(ZMQ.context(), url)
 end
 
-
-function put!(channel::ZMQChannel, input)
-    send(channel.socket, input)
+function put!(channel::ZMQChannel, value::Vector{UInt8})
+    send(channel.socket, value)
 end
 
-
-function take!(channel::ZMQChannel)
+function take!(channel::ZMQChannel)::Vector{UInt8}
     recv(channel.socket)
 end
 
@@ -65,10 +48,10 @@ function iterate(channel::ZMQChannel, state::Any=nothing)
 end
 
 function isready(channel::ZMQChannel)
-    isready(channel.socket)
+    return true
 end
 
-function fetch(channel::ZMQChannel)
+function fetch(channel::ZMQChannel)::Vector{UInt8}
     fetch(channel.socket)
 end
 
